@@ -63,7 +63,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.gson)
     implementation(libs.androidx.compose.runtime.livedata)
-
+    implementation(libs.play.services.basement)
+    implementation(libs.androidx.runner)
+    implementation(libs.jwtdecode)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

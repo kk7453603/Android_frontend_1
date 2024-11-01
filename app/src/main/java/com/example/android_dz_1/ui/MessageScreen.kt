@@ -3,43 +3,35 @@ package com.example.android_dz_1.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.*
-import androidx.compose.ui.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.android_dz_1.network.WebSocketHelper
-import okhttp3.WebSocketListener
-import okhttp3.Response
-import okhttp3.WebSocket
-import okio.ByteString
+import com.example.android_dz_1.model.Message
+import com.example.android_dz_1.network.WebSocketManager
 
 @Composable
 fun MessageScreen(
-    authToken: String,
+    guid: String,
     chatroomId: String
 ) {
-    var messages by remember { mutableStateOf(listOf<String>()) }
+    var messages by remember { mutableStateOf(listOf<Message>()) }
     var inputText by remember { mutableStateOf("") }
-    val webSocketHelper = remember { WebSocketHelper(guid = "", cid = chatroomId) }
+    val webSocketManager = remember {
+        WebSocketManager(guid = guid, cid = chatroomId) { message ->
+            messages = messages + message
+        }
+    }
 
     LaunchedEffect(Unit) {
-        webSocketHelper.connect(object : WebSocketListener() {
-            override fun onMessage(webSocket: WebSocket, text: String) {
-                messages = messages + text
-            }
-
-            override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
-                // Обработка бинарных сообщений (если нужно)
-            }
-        })
+        webSocketManager.connect()
     }
 
     DisposableEffect(Unit) {
         onDispose {
-            webSocketHelper.close()
+            webSocketManager.close()
         }
     }
 
@@ -49,7 +41,7 @@ fun MessageScreen(
             contentPadding = PaddingValues(16.dp)
         ) {
             items(messages) { message ->
-                Text(message)
+                Text("${message.senderName}: ${message.content}")
             }
         }
         Row(
@@ -60,11 +52,12 @@ fun MessageScreen(
             TextField(
                 value = inputText,
                 onValueChange = { inputText = it },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                label = { Text("Сообщение") }
             )
             IconButton(onClick = {
                 if (inputText.isNotBlank()) {
-                    webSocketHelper.sendMessage(inputText)
+                    webSocketManager.sendMessage(inputText)
                     inputText = ""
                 }
             }) {

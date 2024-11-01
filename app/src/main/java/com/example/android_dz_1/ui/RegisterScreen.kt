@@ -5,7 +5,6 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -15,23 +14,30 @@ import com.example.android_dz_1.util.Result
 import com.example.android_dz_1.viewmodel.AuthViewModel
 
 @Composable
-fun LoginScreen(
-    onLoginSuccess: (String) -> Unit,
-    onRegisterClick: () -> Unit
+fun RegisterScreen(
+    onRegisterSuccess: (String) -> Unit,
+    onBackToLoginClick: () -> Unit
 ) {
     val authViewModel: AuthViewModel = viewModel()
     val context = LocalContext.current
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
 
-    val loginResult by authViewModel.loginResult.observeAsState()
+    val registerResult by authViewModel.registerResult.observeAsState()
 
     Column(modifier = Modifier.padding(16.dp)) {
         TextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        TextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Имя пользователя") },
             modifier = Modifier.fillMaxWidth()
         )
         TextField(
@@ -42,24 +48,24 @@ fun LoginScreen(
         )
         Button(
             onClick = {
-                authViewModel.loginUser(UserDTO(email = email, password = password))
+                authViewModel.registerUser(UserDTO(email = email, password = password, username = username))
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Войти")
+            Text("Зарегистрироваться")
         }
         TextButton(
-            onClick = onRegisterClick,
+            onClick = onBackToLoginClick,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Регистрация")
+            Text("Уже есть аккаунт? Войти")
         }
 
-        loginResult?.let { result ->
+        registerResult?.let { result ->
             when (result) {
-                is Result.Success -> {
-                    val token = result.data
-                    onLoginSuccess(token)
+                is Result.Success<*> -> {
+                    val guid = result.data
+                    onRegisterSuccess(guid)
                 }
                 is Result.Failure -> {
                     val errorMessage = result.exception.message ?: "Неизвестная ошибка"

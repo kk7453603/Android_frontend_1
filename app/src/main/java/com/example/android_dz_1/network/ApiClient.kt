@@ -14,7 +14,7 @@ object ApiClient {
     fun getClient(authToken: String?): Retrofit {
         val httpClient = OkHttpClient.Builder()
 
-        if (authToken != null) {
+        if (!authToken.isNullOrEmpty()) {
             val authInterceptor = Interceptor { chain ->
                 val request: Request = chain.request().newBuilder()
                     .addHeader("Authorization", "Bearer $authToken")
