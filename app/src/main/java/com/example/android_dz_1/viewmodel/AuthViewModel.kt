@@ -1,5 +1,6 @@
 package com.example.android_dz_1.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.example.android_dz_1.model.UserDTO
@@ -15,12 +16,21 @@ class AuthViewModel : ViewModel() {
         try {
             val response = userService.loginUser(user)
             if (response.isSuccessful) {
-                val token = response.body()?.content
-                emit(Result.success(token))
+                val responseBody = response.body()
+                val token = responseBody?.content
+                Log.d("AuthViewModel", "Получен токен: $token")
+                if (!token.isNullOrEmpty()) {
+                    emit(Result.success(token))
+                } else {
+                    emit(Result.failure(Exception("Токен не получен")))
+                }
             } else {
-                emit(Result.failure(Exception("Ошибка авторизации")))
+                val errorBody = response.errorBody()?.string()
+                Log.e("AuthViewModel", "Ошибка авторизации: $errorBody")
+                emit(Result.failure(Exception("Ошибка авторизации: ${response.code()}")))
             }
         } catch (e: Exception) {
+            Log.e("AuthViewModel", "Исключение при авторизации", e)
             emit(Result.failure(e))
         }
     }

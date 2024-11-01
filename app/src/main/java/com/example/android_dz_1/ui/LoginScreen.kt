@@ -17,6 +17,8 @@ fun LoginScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var guid by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
@@ -41,6 +43,18 @@ fun LoginScreen(
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
+        OutlinedTextField(
+            value = guid,
+            onValueChange = { guid = it },
+            label = { Text("GUID") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Имя пользователя") },
+            modifier = Modifier.fillMaxWidth()
+        )
         if (errorMessage != null) {
             Text(errorMessage!!, color = MaterialTheme.colors.error)
         }
@@ -51,8 +65,8 @@ fun LoginScreen(
                 val userDTO = UserDTO(
                     email = email,
                     password = password,
-                    guid = null,
-                    username = null
+                    guid = guid,
+                    username = username
                 )
                 authViewModel.loginUser(userDTO).observeForever { result ->
                     isLoading = false

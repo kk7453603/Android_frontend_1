@@ -2,6 +2,7 @@ package com.example.android_dz_1
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
@@ -31,6 +32,7 @@ fun ChatApp() {
         composable("login") {
             LoginScreen(onLoginSuccess = { token, guid ->
                 val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+                Log.d("MainActivity", "Сохранён токен: $token")
                 with(sharedPreferences.edit()) {
                     putString("token", token)
                     putString("guid", guid)
